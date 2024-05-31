@@ -44,6 +44,7 @@ static const char *const pmic_names[] = {
 	[PMD9655_SUBTYPE] = "PMD9655",
 	[PM8950_SUBTYPE] = "PM8950",
 	[PM8953_SUBTYPE] = "PM8953",
+	[PMI8940_SUBTYPE] = "PMI8940",
 	[PMI8950_SUBTYPE] = "PMI8950",
 	[PMK8001_SUBTYPE] = "PMK8001",
 	[PMI8996_SUBTYPE] = "PMI8996",
@@ -131,6 +132,7 @@ EXPORT_SYMBOL(get_revid_data);
 #define PMD9655_PERIPHERAL_SUBTYPE	0x0F
 #define PMI8950_PERIPHERAL_SUBTYPE	0x11
 #define PMI8937_PERIPHERAL_SUBTYPE	0x37
+#define PMI8940_PERIPHERAL_SUBTYPE	0x40
 static size_t build_pmic_string(char *buf, size_t n, int sid,
 		u8 subtype, u8 rev1, u8 rev2, u8 rev3, u8 rev4)
 {
@@ -207,8 +209,19 @@ static int qpnp_revid_probe(struct platform_device *pdev)
 	if (pmic_subtype == PMI8950_PERIPHERAL_SUBTYPE) {
 		/* read spare register */
 		spare0 = qpnp_read_byte(regmap, base + REVID_SPARE_0);
-		if (spare0)
+		switch (spare0) {
+		case 0:
+			pmic_subtype = PMI8950_PERIPHERAL_SUBTYPE;
+			break;
+		case PMI8937_PERIPHERAL_SUBTYPE:
 			pmic_subtype = PMI8937_PERIPHERAL_SUBTYPE;
+			break;
+		case PMI8940_PERIPHERAL_SUBTYPE:
+			pmic_subtype = PMI8940_PERIPHERAL_SUBTYPE;
+			break;
+		default:
+			pr_warn("Invalid spare0 value=%x\n", spare0);
+		}
 	}
 
 	if (of_property_read_bool(pdev->dev.of_node, "qcom,fab-id-valid"))
