@@ -449,6 +449,13 @@ config ARCH_ZYNQMP
 	help
 	  This enables support for Xilinx ZynqMP Family
 
+config YSL
+	bool  "Xiaomi platform"
+	depend on ARCH_MSM8953 chipset.
+	help
+		Support for the Xiaomi Redmi S2 platform
+		which is based on QCOM MSM8953 chipset
+
 config MACH_XIAOMI_YSL
 	bool  "XIAOMI platform"
 	depends on ARCH_MSM8953
